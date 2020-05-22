@@ -1,0 +1,15 @@
+$minoWidth: 40px;
+$minoHeight: 40px;
+
+.matrix {
+	display: grid;
+	grid-template-columns: repeat(10, $minoWidth);
+	grid-template-rows: repeat(20, $minoHeight);
+	.mino {
+		background-color: black;
+		border: 0.5px solid lighten(black, 20);
+	}
+	.filled {
+		background-color: red;
+	}
+}
