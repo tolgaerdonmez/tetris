@@ -8,8 +8,18 @@ $minoHeight: 40px;
 	.mino {
 		background-color: black;
 		border: 0.5px solid lighten(black, 20);
+		color: white;
 	}
+
 	.filled {
 		background-color: red;
 	}
+
+	.cleanAnimation {
+		transition: background-color 300ms ease-out;
+		background-color: white;
+	}
+}
+
+@keyframes CleanAnimation {
 }
