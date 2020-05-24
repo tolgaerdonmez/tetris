@@ -1,46 +1,65 @@
 $minoWidth: 40px;
 $minoHeight: 40px;
 
-.matrix {
-	display: grid;
-	grid-template-columns: repeat(10, $minoWidth);
-	grid-template-rows: repeat(20, $minoHeight);
-	.mino {
-		background-color: black;
-		border: 0.5px solid lighten(black, 20);
-		color: white;
+.mainArea {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+
+	.matrix {
+		display: grid;
+		grid-template-columns: repeat(10, $minoWidth);
+		grid-template-rows: repeat(20, $minoHeight);
+
+		.cleanAnimation {
+			transition: background-color 300ms ease-out;
+			background-color: white;
+		}
 	}
 
-	.cleanAnimation {
-		transition: background-color 300ms ease-out;
-		background-color: white;
-	}
+	.showcaseMatrix,
+	.holdMatrix {
+		display: grid;
+		grid-template-columns: repeat(4, $minoWidth);
+		grid-template-rows: repeat(5, $minoHeight);
+		margin: $minoWidth / 5px;
 
-	.red {
-		background-color: red;
+		h3 {
+			grid-column: 1/5;
+		}
 	}
+}
 
-	.blue {
-		background-color: blue;
-	}
+.mino {
+	background-color: black;
+	border: 0.5px solid lighten(black, 20);
+	color: white;
+}
 
-	.yellow {
-		background-color: yellow;
-	}
+.red {
+	background-color: red;
+}
 
-	.green {
-		background-color: green;
-	}
+.blue {
+	background-color: blue;
+}
 
-	.orange {
-		background-color: orange;
-	}
+.yellow {
+	background-color: yellow;
+}
 
-	.purple {
-		background-color: purple;
-	}
+.green {
+	background-color: green;
+}
 
-	.cyan {
-		background-color: cyan;
-	}
+.orange {
+	background-color: orange;
+}
+
+.purple {
+	background-color: purple;
+}
+
+.cyan {
+	background-color: cyan;
 }

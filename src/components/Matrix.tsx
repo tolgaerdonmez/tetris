@@ -18,6 +18,8 @@ interface Props {}
 
 interface State {
 	matrix: Array<Array<Number>>;
+	showcaseMatrix: Array<Array<Number>>;
+	holdMatrix: Array<Array<Number>>;
 	cleanRows: number[];
 }
 
@@ -29,14 +31,24 @@ class Matrix extends Component<Props, State> {
 	moveX = 0;
 	moveY = 0;
 	stableMatrix: number[][] = [];
-	currentTetrimino: Tetrimino | null = null;
-	currentVariation: number = 0;
 	currentMovementInterval: NodeJS.Timeout | null = null;
+
+	currentVariation: number = 0;
+	currentTetrimino: Tetrimino | null = null;
+	holdTetrimino: Tetrimino | null = null;
+	holdCount: number = 0;
+	nextTetrimino: Tetrimino | null = null;
 
 	constructor(props: Props) {
 		super(props);
-		this.stableMatrix = this.createMatrix();
-		this.state = { matrix: this.stableMatrix, cleanRows: [] };
+		this.stableMatrix = this.createMatrix(this.cols, this.rows);
+		const fourXfourMatrix = this.createMatrix(4, 4);
+		this.state = {
+			matrix: this.stableMatrix,
+			cleanRows: [],
+			showcaseMatrix: fourXfourMatrix,
+			holdMatrix: fourXfourMatrix,
+		};
 	}
 
 	componentDidMount() {
@@ -71,12 +83,28 @@ class Matrix extends Component<Props, State> {
 					this.hardDrop();
 					break;
 				}
+				case "c": {
+					this.holdCurrentTetrimino();
+					break;
+				}
 			}
 		});
+
+		this.selectRandomTetrimino(); // selecting the first tetrimino
 	}
 
-	createMatrix = (): number[][] => {
-		return [...new Array(this.rows)].map(() => [...new Array(this.cols)].map(() => 0));
+	createMatrix = (cols: number, rows: number): number[][] => {
+		return [...new Array(rows)].map(() => [...new Array(cols)].map(() => 0));
+	};
+
+	lockTetrimino = () => {
+		this.stableMatrix = deepCopy(this.state.matrix);
+
+		this.currentTetrimino = null; // clearing the current tetrimino
+		setTimeout(() => {
+			this.startTetrimino();
+			this.holdCount = 0;
+		}, 100);
 	};
 
 	checkCollision = (): boolean => {
@@ -87,7 +115,6 @@ class Matrix extends Component<Props, State> {
 		const mockVariations = this.currentTetrimino.createVariations(this.x + this.moveX, this.y + this.moveY, false);
 
 		for (let i = 0; i < this.currentTetrimino.variations.length; i++) {
-			console.log(`move X: ${this.moveX} | Y: ${this.moveY}`);
 			const c = this.currentTetrimino.variations[this.currentVariation][i];
 			const cMoved = mockVariations[this.currentVariation][i];
 
@@ -95,11 +122,7 @@ class Matrix extends Component<Props, State> {
 				((c[0] <= this.rows - 1 && this.stableMatrix[c[0]][c[1]] > 0) || cMoved[0] > this.rows - 1) &&
 				this.moveY === 1
 			) {
-				console.log("locked");
-				this.stableMatrix = deepCopy(this.state.matrix);
-
-				this.currentTetrimino = null; // clearing the current tetrimino
-				setTimeout(this.startTetrimino, 100);
+				this.lockTetrimino();
 				collision = true;
 				break;
 			}
@@ -108,7 +131,6 @@ class Matrix extends Component<Props, State> {
 				(cMoved[0] > this.rows - 1 || this.stableMatrix[cMoved[0]][cMoved[1]] > 0) &&
 				this.currentMovementInterval !== null
 			) {
-				console.log("collided");
 				collision = true;
 			}
 
@@ -155,7 +177,6 @@ class Matrix extends Component<Props, State> {
 		let mockVarIndex = this.currentVariation + 1 > 3 ? 0 : this.currentVariation + 1;
 
 		if (!this.currentTetrimino) return;
-
 		let mockVariations: number[][][] = this.currentTetrimino.createVariations(this.x, this.y, true);
 		let gaps: number[] = [0, 0, 0, 0];
 
@@ -180,7 +201,6 @@ class Matrix extends Component<Props, State> {
 
 		if (!mockPassed) return;
 		else this.currentVariation = mockVarIndex;
-
 		this.currentTetrimino.variations[this.currentVariation].forEach(c => {
 			if (c[1] > this.cols - 1) {
 				const xGap = Math.abs(c[1] - this.cols + 1);
@@ -210,7 +230,6 @@ class Matrix extends Component<Props, State> {
 		if (!this.currentTetrimino) return;
 		this.currentTetrimino.createVariations(this.x, this.y, false);
 
-		console.log("drawing matrix");
 		if (!this.checkCollision()) {
 			// if there is collision
 			this.lineClear();
@@ -233,17 +252,50 @@ class Matrix extends Component<Props, State> {
 	selectRandomTetrimino = () => {
 		const tetriminos = ["t", "j", "l", "z", "s", "o", "i"];
 		const randomI = Math.floor(Math.random() * tetriminos.length);
+		this.nextTetrimino = new Tetrimino(tetriminos[randomI]);
+		this.nextTetrimino.createVariations(1, 1, false);
 
-		return new Tetrimino(tetriminos[randomI]);
+		const showcaseMatrix = this.createMatrix(4, 4);
+		this.nextTetrimino.variations[0].forEach(c => {
+			if (this.nextTetrimino) showcaseMatrix[c[0]][c[1]] = this.nextTetrimino.index;
+		});
+		this.setState({ showcaseMatrix });
 	};
 
-	startTetrimino = () => {
+	holdCurrentTetrimino = () => {
+		if (this.holdCount !== 0) return;
+		this.holdCount++;
+		if (!this.currentTetrimino) return;
+		const hold = new Tetrimino(this.currentTetrimino.type);
+		this.currentVariation = 4;
+		this.rotateTetrimino();
+
+		if (!this.holdTetrimino) this.startTetrimino();
+		else this.startTetrimino(true);
+
+		this.holdTetrimino = hold;
+		this.holdTetrimino.createVariations(1, 1, false);
+
+		const holdMatrix = this.createMatrix(4, 4);
+		this.holdTetrimino.variations[0].forEach(c => {
+			if (this.holdTetrimino) holdMatrix[c[0]][c[1]] = this.holdTetrimino.index;
+		});
+		this.setState({ holdMatrix });
+	};
+
+	startTetrimino = (fromHold?: boolean) => {
+		if (!this.nextTetrimino) return;
 		if (this.currentMovementInterval !== null) {
 			clearInterval(this.currentMovementInterval);
 		}
 
 		this.y = 1;
-		this.currentTetrimino = this.selectRandomTetrimino();
+		if (fromHold && this.holdTetrimino) this.currentTetrimino = this.holdTetrimino;
+		// setting current tetrimino to holded tetrimino
+		else {
+			this.currentTetrimino = this.nextTetrimino; // setting current tetrimino to next tetrimino
+			this.selectRandomTetrimino(); // setting the next tetrimino
+		}
 		this.currentTetrimino.createVariations(this.x, this.y, false);
 		this.drawMatrix();
 
@@ -255,12 +307,19 @@ class Matrix extends Component<Props, State> {
 	};
 
 	render() {
-		const { matrix } = this.state;
+		const { matrix, showcaseMatrix, holdMatrix } = this.state;
+
 		return (
-			<>
-				<div className="matrix">
+			<div className="mainArea">
+				{/* <div className="matrix">
 					{matrix.flat(Infinity).map((val, i) => (
 						<div key={i}>{val}</div>
+					))}
+				</div> */}
+				<div className="holdMatrix">
+					<h3>Hold Tetrimino:</h3>
+					{holdMatrix.flat(Infinity).map((val, i) => (
+						<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
 					))}
 				</div>
 				<div className="matrix">
@@ -280,8 +339,14 @@ class Matrix extends Component<Props, State> {
 						/>
 					))}
 				</div>
-				<button onClick={this.startTetrimino}>Start</button>
-			</>
+				<button onClick={() => this.startTetrimino()}>Start</button>
+				<div className="showcaseMatrix">
+					<h3>Next Tetrimino:</h3>
+					{showcaseMatrix.flat(Infinity).map((val, i) => (
+						<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
+					))}
+				</div>
+			</div>
 		);
 	}
 }
