@@ -1,20 +1,13 @@
 import templates from "./templates";
 
-// export abstract class Tetrimino {
-// 	abstract color: string;
-// 	abstract variations: number[][][];
-// 	abstract width: number;
-// 	abstract createVariations(x: number, y: number, mock: boolean): number[][][];
-// }
-
 export default class Tetrimino {
 	type: string;
-	color: string;
 	variations: number[][][];
+	index: number;
 
 	constructor(type: string) {
 		this.type = type;
-		this.color = "red";
+		this.index = (templates as any)[this.type].index;
 		this.variations = [];
 	}
 
@@ -28,3 +21,5 @@ export default class Tetrimino {
 		return variations;
 	};
 }
+
+export const Templates = { ...templates };

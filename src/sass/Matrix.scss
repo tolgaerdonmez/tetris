@@ -11,15 +11,36 @@ $minoHeight: 40px;
 		color: white;
 	}
 
-	.filled {
-		background-color: red;
-	}
-
 	.cleanAnimation {
 		transition: background-color 300ms ease-out;
 		background-color: white;
 	}
-}
 
-@keyframes CleanAnimation {
+	.red {
+		background-color: red;
+	}
+
+	.blue {
+		background-color: blue;
+	}
+
+	.yellow {
+		background-color: yellow;
+	}
+
+	.green {
+		background-color: green;
+	}
+
+	.orange {
+		background-color: orange;
+	}
+
+	.purple {
+		background-color: purple;
+	}
+
+	.cyan {
+		background-color: cyan;
+	}
 }
