@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import "../sass/Matrix.scss";
 import Tetrimino, { Templates } from "./Tetrimino/Tetrimino";
 
+const hardDropSound = new Audio("sounds/harddrop2.mp3");
+
 const deepCopy = (arr: Array<any>) => {
 	let copy: typeof arr = [];
 	arr.forEach(elem => {
@@ -218,6 +220,7 @@ class Matrix extends Component<Props, State> {
 	};
 
 	hardDrop = () => {
+		hardDropSound.play();
 		[...new Array(this.rows)].forEach(() => {
 			this.moveY = 1;
 			this.drawMatrix();
