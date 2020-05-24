@@ -112,14 +112,14 @@ class Matrix extends Component<Props, State> {
 
 		let collision = false;
 
-		const mockVariations = this.currentTetrimino.createVariations(this.x + this.moveX, this.y + this.moveY, false);
+		const mockVariations = this.currentTetrimino.createVariations(this.x + this.moveX, this.y + this.moveY, true);
 
 		for (let i = 0; i < this.currentTetrimino.variations.length; i++) {
 			const c = this.currentTetrimino.variations[this.currentVariation][i];
 			const cMoved = mockVariations[this.currentVariation][i];
 
 			if (
-				((c[0] <= this.rows - 1 && this.stableMatrix[c[0]][c[1]] > 0) || cMoved[0] > this.rows - 1) &&
+				((c[0] + 1 <= this.rows - 1 && this.stableMatrix[c[0] + 1][c[1]] > 0) || cMoved[0] > this.rows - 1) &&
 				this.moveY === 1
 			) {
 				this.lockTetrimino();
@@ -196,7 +196,12 @@ class Matrix extends Component<Props, State> {
 		mockVariations = this.currentTetrimino.createVariations(this.x + gaps.reduce((a, b) => a + b), this.y, true);
 		// if any rotated mino collides with a 1, rotate is not possible
 		mockVariations[mockVarIndex].forEach(c => {
-			if (this.stableMatrix[c[0]][c[1]] > 0) mockPassed = false;
+			if (
+				this.stableMatrix[c[0]] &&
+				this.stableMatrix[c[0]][c[1]] !== undefined &&
+				this.stableMatrix[c[0]][c[1]] > 0
+			)
+				mockPassed = false;
 		});
 
 		if (!mockPassed) return;
