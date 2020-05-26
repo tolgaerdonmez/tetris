@@ -11,8 +11,8 @@ export default class Tetrimino {
 		this.variations = [];
 	}
 
-	createVariations = (x: number, y: number, mock: boolean) => {
-		const variations = (templates as any)[this.type].createVariant(x, y);
+	createVariations = (x: number, y: number, mock?: boolean): number[][][] => {
+		const variations = (templates as any)[this.type].createVariant(x, y) as number[][][];
 
 		if (!mock) {
 			this.variations = variations;
