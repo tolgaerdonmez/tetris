@@ -1,19 +1,97 @@
 $minoWidth: 40px;
 $minoHeight: 40px;
 
+@mixin button {
+	border: none;
+	transition: 200ms ease;
+
+	font-size: 2em;
+	text-transform: uppercase;
+	text-align: center;
+
+	font-weight: bold;
+	&:hover {
+		filter: brightness(120%);
+	}
+}
+
 .mainArea {
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
 
-	.matrix {
-		display: grid;
-		grid-template-columns: repeat(10, $minoWidth);
-		grid-template-rows: repeat(20, $minoHeight);
+	.gameArea {
+		border: 15px solid white;
+		position: relative;
+		margin: 0 30px;
 
-		.cleanAnimation {
-			transition: background-color 300ms ease-out;
-			background-color: white;
+		.matrix {
+			display: grid;
+			grid-template-columns: repeat(10, $minoWidth);
+			grid-template-rows: repeat(20, $minoHeight);
+
+			.cleanAnimation {
+				transition: background-color 300ms ease-out;
+				background-color: white;
+			}
+		}
+
+		.menu {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 10 * $minoWidth;
+			height: 20 * $minoHeight;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+
+			background-color: black;
+			.startButton {
+				width: 120px;
+				height: 50px;
+
+				background-color: green;
+				color: white;
+
+				@include button;
+			}
+
+			.tetrisLogo {
+				display: grid;
+				grid-template-columns: repeat(3, 85px);
+				grid-template-rows: repeat(2, 85px);
+
+				margin: 20px;
+
+				* {
+					background-color: blue;
+				}
+
+				h1 {
+					grid-column: 1 / 4;
+					grid-row: 1 / 2;
+
+					box-sizing: border-box;
+
+					width: 100%;
+					height: 100%;
+
+					margin: 0;
+					padding: 0;
+
+					font-size: 70px;
+					text-align: center;
+					color: white;
+				}
+
+				.emptyBox {
+					grid-column: 2 /3;
+					grid-row: 2/3;
+				}
+			}
 		}
 	}
 
@@ -21,19 +99,27 @@ $minoHeight: 40px;
 	.holdMatrix {
 		display: grid;
 		grid-template-columns: repeat(4, $minoWidth);
-		grid-template-rows: repeat(5, $minoHeight);
+		grid-template-rows: repeat(6, $minoHeight);
 		margin: $minoWidth / 5px;
 
 		h3 {
 			grid-column: 1/5;
+			grid-row: 1/3;
+			text-align: center;
 		}
 	}
 }
 
 .mino {
 	background-color: black;
-	border: 0.5px solid lighten(black, 20);
+	border: 0.5px solid rgb(34, 34, 34);
 	color: white;
+}
+
+.hideThis {
+	transition: 200ms ease;
+	opacity: 0;
+	display: none;
 }
 
 .red {

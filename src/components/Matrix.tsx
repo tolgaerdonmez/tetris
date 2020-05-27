@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../sass/Matrix.scss";
 import Tetrimino, { Templates } from "./Tetrimino/Tetrimino";
+import Timer from "./Timer";
 
 const deepCopy = (arr: Array<any>) => {
 	let copy: typeof arr = [];
@@ -21,64 +22,75 @@ interface State {
 	showcaseMatrix: Array<Array<Number>>;
 	holdMatrix: Array<Array<Number>>;
 	cleanRows: number[];
+	gameStatus: string;
 }
+
+const initialState: State = {
+	gameStatus: "",
+	matrix: [],
+	cleanRows: [],
+	showcaseMatrix: [],
+	holdMatrix: [],
+};
 
 class Matrix extends Component<Props, State> {
 	cols = 10;
 	rows = 20;
-	x = 1;
+	x = 5;
 	y = 0;
 	moveX = 0;
 	moveY = 0;
 	stableMatrix: number[][] = [];
 	currentMovementInterval: NodeJS.Timeout | null = null;
+	lockdownTimer: NodeJS.Timeout | null = null;
+	lockdownActive: boolean = false;
 
 	currentVariation: number = 0;
 	currentTetrimino: Tetrimino | null = null;
 	holdTetrimino: Tetrimino | null = null;
 	holdCount: number = 0;
 	nextTetrimino: Tetrimino | null = null;
+	isHardDrop: boolean = false;
 
 	gameFinished: boolean = false;
 
 	constructor(props: Props) {
 		super(props);
+		this.state = initialState;
+	}
+
+	setupGame = () => {
 		this.stableMatrix = this.createMatrix(this.cols, this.rows);
 		const fourXfourMatrix = this.createMatrix(4, 4);
-		this.state = {
+		this.setState({
+			gameStatus: "",
 			matrix: this.stableMatrix,
 			cleanRows: [],
 			showcaseMatrix: fourXfourMatrix,
 			holdMatrix: fourXfourMatrix,
-		};
-	}
+		});
+
+		this.selectRandomTetrimino(); // selecting the first tetrimino
+	};
 
 	componentDidMount() {
 		window.addEventListener("keydown", (e: KeyboardEvent) => {
 			switch (e.key) {
 				case "ArrowRight": {
-					this.moveX = 1;
-					this.moveY = 0;
-					this.drawMatrix();
+					this.moveTetrimino(1, 0);
 					break;
 				}
 				case "ArrowLeft": {
-					this.moveX = -1;
-					this.moveY = 0;
-					this.drawMatrix();
+					this.moveTetrimino(-1, 0);
 					break;
 				}
 				case "ArrowDown": {
-					this.moveX = 0;
-					this.moveY = 1;
-					this.drawMatrix();
+					this.moveTetrimino(0, 1);
 					break;
 				}
 				case "ArrowUp": {
 					this.rotateTetrimino();
-					this.moveX = 0;
-					this.moveY = 0;
-					this.drawMatrix();
+					this.moveTetrimino(0, 0); // setting moveX,Y to 0 and resetting lockdowntimer if exists
 					break;
 				}
 				case " ": {
@@ -91,14 +103,42 @@ class Matrix extends Component<Props, State> {
 				}
 			}
 		});
-		this.selectRandomTetrimino(); // selecting the first tetrimino
 	}
 
 	createMatrix = (cols: number, rows: number): number[][] => {
 		return [...new Array(rows)].map(() => [...new Array(cols)].map(() => 0));
 	};
 
+	moveTetrimino = (x: number, y: number) => {
+		if (this.lockdownActive) this.resetLockdown();
+
+		this.moveX = x;
+		this.moveY = y;
+		this.drawMatrix();
+	};
+
+	rotateTetrimino = () => {
+		let mockVarIndex = this.currentVariation + 1 > 3 ? 0 : this.currentVariation + 1;
+		this.adjustPosition(mockVarIndex);
+	};
+
+	hardDrop = () => {
+		this.isHardDrop = true;
+		this.moveY = 1;
+		[...new Array(this.rows)].forEach(() => {
+			if (this.drawMatrix() !== 0) return;
+			else this.moveY = 1;
+		});
+		this.isHardDrop = false;
+	};
+
 	lockTetrimino = () => {
+		this.lockdownActive = false;
+		this.lockdownTimer = null;
+
+		if (!this.checkCollision(false)) return;
+
+		this.moveY = 0;
 		this.stableMatrix = deepCopy(this.state.matrix);
 
 		this.currentTetrimino = null; // clearing the current tetrimino
@@ -106,6 +146,27 @@ class Matrix extends Component<Props, State> {
 			this.startTetrimino();
 			this.holdCount = 0;
 		}, 100);
+
+		// if there is collision
+		this.lineClear();
+		// check if that game is over
+		this.checkFinished();
+	};
+
+	resetLockdown = () => {
+		if (!this.lockdownTimer) return;
+		// if there is a lockdown timer, clears it then restarts
+		clearTimeout(this.lockdownTimer);
+		this.startLockdown();
+		if (!this.lockdownActive) clearTimeout(this.lockdownTimer);
+	};
+
+	startLockdown = () => {
+		if (this.isHardDrop) this.lockTetrimino();
+		else {
+			this.lockdownActive = true;
+			this.lockdownTimer = setTimeout(this.lockTetrimino, 500);
+		}
 	};
 
 	checkFinished = () => {
@@ -113,11 +174,11 @@ class Matrix extends Component<Props, State> {
 		if (isFinished) {
 			if (this.currentMovementInterval) clearInterval(this.currentMovementInterval);
 			this.gameFinished = true;
-			console.log("game over");
+			this.setState({ gameStatus: "finished" });
 		}
 	};
 
-	checkCollision = (): boolean => {
+	checkCollision = (lock: boolean = true): boolean => {
 		if (!this.currentTetrimino) return false;
 
 		let collision = false;
@@ -131,15 +192,13 @@ class Matrix extends Component<Props, State> {
 			if (this.moveY === 1) {
 				if (c[0] + 1 <= this.rows - 1 && c[0] + 1 >= 0) {
 					if (this.stableMatrix[c[0] + 1][c[1]] > 0 && this.stableMatrix[cMoved[0]][cMoved[1]] > 0) {
-						this.lockTetrimino();
+						if (lock) this.startLockdown();
 						collision = true;
-						this.moveY = 0;
 						break;
 					}
 				} else if (cMoved[0] > this.rows - 1) {
-					this.lockTetrimino();
+					if (lock) this.startLockdown();
 					collision = true;
-					this.moveY = 0;
 					break;
 				}
 			}
@@ -178,13 +237,13 @@ class Matrix extends Component<Props, State> {
 		}
 	};
 
-	adjustPosition = (mockVariationIndex: number) => {
+	adjustPosition = (mockVariationIndex: number): boolean => {
 		// adjusts the needed gaps for the given variationIndex
 		// this method tests if the position os possible for the current tetrimino
 		// if possible does the needed changes and adjusts the gaps for tetrimino to fit
-		// else return void
+		// else returns true on success
 		let mockPassed = true;
-		if (!this.currentTetrimino) return;
+		if (!this.currentTetrimino) return false;
 		let mockVariations: number[][][] = this.currentTetrimino.createVariations(this.x, this.y, true);
 		let xGaps: number[] = [0, 0, 0, 0];
 		let yGaps: number[] = [0, 0, 0, 0];
@@ -223,55 +282,24 @@ class Matrix extends Component<Props, State> {
 				mockPassed = false;
 		});
 
-		if (!mockPassed) return;
+		if (!mockPassed) return false;
 		this.currentVariation = mockVariationIndex;
 
 		// adding gaps to both axises
 		this.x += xGaps.reduce((a, b) => a + b);
 		this.y += yGaps.reduce((a, b) => a + b);
-	};
 
-	rotateTetrimino = () => {
-		let mockVarIndex = this.currentVariation + 1 > 3 ? 0 : this.currentVariation + 1;
-		this.adjustPosition(mockVarIndex);
-	};
-
-	hardDrop = () => {
-		this.moveY = 1;
-		[...new Array(this.rows)].forEach(() => {
-			if (this.drawMatrix() === 1) {
-				return;
-			} else this.moveY = 1;
-		});
-		// below is a different approach which is also good
-		// if (!this.currentTetrimino) return;
-		// let possibleSteps = 0;
-		// for (let index = 1; index < this.rows; index++) {
-		// 	let stepPossible = true;
-		// 	this.currentTetrimino.createVariations(this.x, this.y + index, true)[this.currentVariation].forEach(c => {
-		// 		if (
-		// 			this.stableMatrix[c[0]] === undefined ||
-		// 			this.stableMatrix[c[0]][c[1]] === undefined ||
-		// 			this.stableMatrix[c[0]][c[1]] > 0
-		// 		)
-		// 			stepPossible = false;
-		// 	});
-		// 	if (!stepPossible) break;
-		// 	else {
-		// 		possibleSteps++;
-		// 	}
-		// }
-		// if (possibleSteps > 0) {
-		// 	this.y += possibleSteps;
-		// 	// this.currentTetrimino.createVariations(this.x, this.y);
-		// 	this.drawMatrix();
-		// 	this.lockTetrimino();
-		// }
+		return true;
 	};
 
 	selectRandomTetrimino = () => {
 		const tetriminos = ["t", "j", "l", "z", "s", "o", "i"];
-		const randomI = Math.floor(Math.random() * tetriminos.length);
+		let randomI = 0;
+		while (true) {
+			randomI = Math.floor(Math.random() * tetriminos.length);
+			if (!this.currentTetrimino) break;
+			if (tetriminos[randomI] !== this.currentTetrimino.type) break;
+		}
 		this.nextTetrimino = new Tetrimino(tetriminos[randomI]);
 		this.nextTetrimino.createVariations(1, 1, false);
 
@@ -327,11 +355,9 @@ class Matrix extends Component<Props, State> {
 	};
 
 	startTetrimino = (fromHold?: boolean) => {
+		if (this.currentMovementInterval) clearInterval(this.currentMovementInterval);
 		if (!this.nextTetrimino) return;
-		if (this.currentMovementInterval !== null) {
-			clearInterval(this.currentMovementInterval);
-		}
-		console.log("starting tetrimino", Date.now());
+
 		if (fromHold !== undefined && this.holdTetrimino) this.currentTetrimino = this.holdTetrimino;
 		// setting current tetrimino to holded tetrimino
 		else {
@@ -361,13 +387,7 @@ class Matrix extends Component<Props, State> {
 		if (!this.currentTetrimino || this.gameFinished) return -1;
 		this.currentTetrimino.createVariations(this.x, this.y);
 
-		if (this.checkCollision()) {
-			// if there is collision
-			this.lineClear();
-			// check if that game is over
-			this.checkFinished();
-			return 1;
-		}
+		if (this.checkCollision()) return 1;
 
 		this.addMovement();
 
@@ -388,26 +408,47 @@ class Matrix extends Component<Props, State> {
 		return 0;
 	};
 
+	startGame = () => {
+		this.setupGame();
+		this.setState({ gameStatus: "playing" });
+		this.startTetrimino();
+	};
+
 	render() {
 		const { matrix, showcaseMatrix, holdMatrix } = this.state;
 
 		return (
 			<div className="mainArea">
-				{/* <div className="matrix">
-					{matrix.flat(Infinity).map((val, i) => (
-						<div key={i}>{val}</div>
-					))}
-				</div> */}
 				<div className="holdMatrix">
-					<h3>Hold Tetrimino:</h3>
+					<h3>Hold Box</h3>
 					{holdMatrix.flat(Infinity).map((val, i) => (
 						<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
 					))}
 				</div>
-				<div className="matrix">
-					{matrix.flat(Infinity).map((val, i) => (
-						<div
-							className={`
+				<div className="gameArea">
+					<div className={`menu ${this.state.gameStatus === "playing" ? "hideThis" : ""}`}>
+						{this.state.gameStatus === "" || this.state.gameStatus === "finished" ? (
+							<>
+								<div className="tetrisLogo">
+									<h1>TETRIS</h1>
+									<div className="emptyBox" />
+								</div>
+								{this.state.gameStatus === "finished" ? <h1>Game Over!</h1> : null}
+								<button
+									className="startButton"
+									onClick={() => this.setState({ gameStatus: "starting" })}>
+									{this.state.gameStatus === "finished" ? "Play Again" : "Play"}
+								</button>
+							</>
+						) : this.state.gameStatus === "starting" ? (
+							<Timer onFinish={this.startGame} />
+						) : null}
+					</div>
+
+					<div className="matrix">
+						{matrix.flat(Infinity).map((val, i) => (
+							<div
+								className={`
 								mino 
 								${
 									this.state.cleanRows.indexOf(Math.floor(i / 10)) > -1
@@ -417,20 +458,13 @@ class Matrix extends Component<Props, State> {
 										: ""
 								}
 							`}
-							key={i}
-						/>
-					))}
+								key={i}
+							/>
+						))}
+					</div>
 				</div>
-				<button onClick={() => this.startTetrimino()}>Start</button>
-				<button
-					onClick={() => {
-						if (this.currentMovementInterval) clearInterval(this.currentMovementInterval);
-						this.gameFinished = true;
-					}}>
-					Stop
-				</button>
 				<div className="showcaseMatrix">
-					<h3>Next Tetrimino:</h3>
+					<h3>Next</h3>
 					{showcaseMatrix.flat(Infinity).map((val, i) => (
 						<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
 					))}
