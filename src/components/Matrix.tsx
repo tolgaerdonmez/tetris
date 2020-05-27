@@ -26,7 +26,7 @@ interface State {
 }
 
 const initialState: State = {
-	gameStatus: "",
+	gameStatus: "menu",
 	matrix: [],
 	cleanRows: [],
 	showcaseMatrix: [],
@@ -75,33 +75,38 @@ class Matrix extends Component<Props, State> {
 
 	componentDidMount() {
 		window.addEventListener("keydown", (e: KeyboardEvent) => {
-			switch (e.key) {
-				case "ArrowRight": {
-					this.moveTetrimino(1, 0);
-					break;
+			// if (e.key === "esc") {
+			// 	if (this.state.gameStatus === "playing") this.pauseGame();
+			// 	else if (this.state.gameStatus === "paused") this.setState({ gameStatus: "playing" });
+			// }
+			if (this.state.gameStatus === "playing")
+				switch (e.key) {
+					case "ArrowRight": {
+						this.moveTetrimino(1, 0);
+						break;
+					}
+					case "ArrowLeft": {
+						this.moveTetrimino(-1, 0);
+						break;
+					}
+					case "ArrowDown": {
+						this.moveTetrimino(0, 1);
+						break;
+					}
+					case "ArrowUp": {
+						this.rotateTetrimino();
+						this.moveTetrimino(0, 0); // setting moveX,Y to 0 and resetting lockdowntimer if exists
+						break;
+					}
+					case " ": {
+						this.hardDrop();
+						break;
+					}
+					case "c": {
+						this.holdCurrentTetrimino();
+						break;
+					}
 				}
-				case "ArrowLeft": {
-					this.moveTetrimino(-1, 0);
-					break;
-				}
-				case "ArrowDown": {
-					this.moveTetrimino(0, 1);
-					break;
-				}
-				case "ArrowUp": {
-					this.rotateTetrimino();
-					this.moveTetrimino(0, 0); // setting moveX,Y to 0 and resetting lockdowntimer if exists
-					break;
-				}
-				case " ": {
-					this.hardDrop();
-					break;
-				}
-				case "c": {
-					this.holdCurrentTetrimino();
-					break;
-				}
-			}
 		});
 	}
 
@@ -419,15 +424,17 @@ class Matrix extends Component<Props, State> {
 
 		return (
 			<div className="mainArea">
-				<div className="holdMatrix">
-					<h3>Hold Box</h3>
-					{holdMatrix.flat(Infinity).map((val, i) => (
-						<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
-					))}
-				</div>
+				{this.state.gameStatus === "playing" ? (
+					<div className="holdMatrix">
+						<h3>Hold</h3>
+						{holdMatrix.flat(Infinity).map((val, i) => (
+							<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
+						))}
+					</div>
+				) : null}
 				<div className="gameArea">
 					<div className={`menu ${this.state.gameStatus === "playing" ? "hideThis" : ""}`}>
-						{this.state.gameStatus === "" || this.state.gameStatus === "finished" ? (
+						{this.state.gameStatus === "menu" || this.state.gameStatus === "finished" ? (
 							<>
 								<div className="tetrisLogo">
 									<h1>TETRIS</h1>
@@ -439,9 +446,52 @@ class Matrix extends Component<Props, State> {
 									onClick={() => this.setState({ gameStatus: "starting" })}>
 									{this.state.gameStatus === "finished" ? "Play Again" : "Play"}
 								</button>
+								<button className="howToPlay" onClick={() => this.setState({ gameStatus: "howTo" })}>
+									How to play?
+								</button>
 							</>
 						) : this.state.gameStatus === "starting" ? (
 							<Timer onFinish={this.startGame} />
+						) : this.state.gameStatus === "howTo" ? (
+							<>
+								<h1>How to play ?</h1>
+								<ul className="howToDirections">
+									<li>
+										<div>
+											<span className="key">←</span>
+											<span className="key">→</span>
+										</div>
+										<p>Moves tetriminos left or right</p>
+									</li>
+									<li>
+										<div>
+											<span className="key space">SPACE</span>
+										</div>
+										<p>Hard drop</p>
+									</li>
+									<li>
+										<div>
+											<span className="key">↑</span>
+										</div>
+										<p>Rotates tetrimino clockwise</p>
+									</li>
+									<li>
+										<div>
+											<span className="key">c</span>
+										</div>
+										<p>Hold</p>
+									</li>
+									{/* <li>
+										<div>
+											<span className="key">esc</span>
+										</div>
+										<p>Pause</p>
+									</li> */}
+								</ul>
+								<button className="howToPlay" onClick={() => this.setState({ gameStatus: "menu" })}>
+									Back
+								</button>
+							</>
 						) : null}
 					</div>
 
@@ -463,12 +513,14 @@ class Matrix extends Component<Props, State> {
 						))}
 					</div>
 				</div>
-				<div className="showcaseMatrix">
-					<h3>Next</h3>
-					{showcaseMatrix.flat(Infinity).map((val, i) => (
-						<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
-					))}
-				</div>
+				{this.state.gameStatus === "playing" ? (
+					<div className="showcaseMatrix">
+						<h3>Next</h3>
+						{showcaseMatrix.flat(Infinity).map((val, i) => (
+							<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
+						))}
+					</div>
+				) : null}
 			</div>
 		);
 	}
