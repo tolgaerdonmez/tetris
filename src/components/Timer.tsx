@@ -6,7 +6,7 @@ interface Props {
 }
 
 const Timer = ({ onFinish }: Props) => {
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(3);
 	useEffect(() => {
 		if (count === 0) {
 			console.log("finished");
