@@ -19,7 +19,7 @@
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"heroku-postbuild": "yarn build;yarn global add serve;serve -s build -l 80",
+		"heroku-postbuild": "yarn build;yarn global add serve;serve -s build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
