@@ -15,3 +15,28 @@ body {
 
 	margin: 20px;
 }
+
+#madeBy {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+
+	padding: 0;
+	margin: 25px;
+
+	a {
+		text-decoration: none;
+		font-weight: bold;
+		padding: 5px;
+
+		color: blue;
+		background-color: white;
+
+		transition: 300ms ease;
+
+		&:hover {
+			background-color: blue;
+			color: white;
+		}
+	}
+}

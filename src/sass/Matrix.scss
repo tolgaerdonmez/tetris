@@ -168,36 +168,23 @@ $minoHeight: 40px;
 	color: white;
 }
 
+$tetriminoColors: red, blue, green, yellow, orange, purple, cyan;
+
+@each $color in $tetriminoColors {
+	.#{$color} {
+		background-color: $color;
+	}
+}
+
+@each $color in $tetriminoColors {
+	.hint-#{$color} {
+		border: none;
+		box-shadow: inset 0 0 2px white, inset 0 0 10px $color;
+	}
+}
+
 .hideThis {
 	transition: 200ms ease;
 	opacity: 0;
 	display: none;
-}
-
-.red {
-	background-color: red;
-}
-
-.blue {
-	background-color: blue;
-}
-
-.yellow {
-	background-color: yellow;
-}
-
-.green {
-	background-color: green;
-}
-
-.orange {
-	background-color: orange;
-}
-
-.purple {
-	background-color: purple;
-}
-
-.cyan {
-	background-color: cyan;
 }
