@@ -19,7 +19,6 @@
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"heroku-postbuild": "yarn build;yarn global add serve;serve -s build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
@@ -39,7 +38,6 @@
 		]
 	},
 	"engines": {
-		"yarn": "1.22.4",
 		"npm": "6.14.4",
 		"node": "12.16.2"
 	},
