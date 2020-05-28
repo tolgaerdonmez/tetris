@@ -514,7 +514,7 @@ class Matrix extends Component<Props, State> {
 		return (
 			<div className="mainArea">
 				{gameStatus === "playing" ? (
-					<>
+					<div className="leftSide">
 						<h2>Points: {points}</h2>
 						<div className="holdMatrix">
 							<h3>Hold</h3>
@@ -522,7 +522,7 @@ class Matrix extends Component<Props, State> {
 								<div className={`${val > 0 ? Templates.colorList[val as number] : ""}`} key={i} />
 							))}
 						</div>
-					</>
+					</div>
 				) : null}
 				<div className="gameArea">
 					<div className={`menu ${gameStatus === "playing" ? "hideThis" : ""}`}>

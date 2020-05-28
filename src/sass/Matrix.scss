@@ -1,5 +1,5 @@
-$minoWidth: 40px;
-$minoHeight: 40px;
+$minoWidth: 30px;
+$minoHeight: 30px;
 
 @mixin button {
 	border: none;
@@ -37,6 +37,13 @@ $minoHeight: 40px;
 			}
 		}
 
+		.leftSide {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
 		.menu {
 			position: absolute;
 			top: 0;
@@ -72,7 +79,7 @@ $minoHeight: 40px;
 
 			.howToDirections {
 				list-style-type: none;
-				padding: 0;
+				padding: 10px;
 				margin: 0;
 
 				li {
@@ -99,10 +106,10 @@ $minoHeight: 40px;
 					border: 3px solid white;
 					background-color: black;
 
-					width: 50px;
-					height: 50px;
+					width: 30px;
+					height: 30px;
 
-					font-size: 1.5em;
+					font-size: 1.3em;
 					text-align: center;
 				}
 
