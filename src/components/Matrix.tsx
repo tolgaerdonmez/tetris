@@ -79,6 +79,7 @@ class Matrix extends Component<Props, State> {
       holdMatrix: fourXfourMatrix,
       points: 0,
     });
+    this.level = 1;
     this.currentTetrimino = null;
     this.nextTetrimino = null;
     this.selectRandomTetrimino(); // selecting the first tetrimino
