@@ -88,8 +88,8 @@ class Matrix extends Component<Props, State> {
   componentDidMount() {
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       // if (e.key === "esc") {
-      // 	if (this.state.gameStatus === "playing") this.pauseGame();
-      // 	else if (this.state.gameStatus === "paused") this.setState({ gameStatus: "playing" });
+      //   if (this.state.gameStatus === "playing") this.pauseGame();
+      //   else if (this.state.gameStatus === "paused") this.setState({ gameStatus: "playing" });
       // }
       if (this.state.gameStatus === "playing")
         switch (e.key) {

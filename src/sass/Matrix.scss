@@ -2,196 +2,208 @@ $minoWidth: 30px;
 $minoHeight: 30px;
 
 @mixin button {
-	border: none;
-	transition: background-color 200ms ease;
+  border: none;
+  transition: background-color 200ms ease;
 
-	font-size: 2em;
-	text-transform: uppercase;
-	text-align: center;
-	color: white;
+  font-size: 2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: white;
 
-	font-weight: bold;
-	&:hover {
-		filter: brightness(120%);
-	}
+  font-weight: bold;
+  &:hover {
+    filter: brightness(120%);
+  }
 }
 
 .mainArea {
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 
-	.gameArea {
-		border: 15px solid white;
-		position: relative;
-		margin: 0 30px;
+  .gameArea {
+    border: 15px solid white;
+    position: relative;
+    margin: 0 30px;
 
-		.matrix {
-			display: grid;
-			grid-template-columns: repeat(10, $minoWidth);
-			grid-template-rows: repeat(20, $minoHeight);
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(10, $minoWidth);
+      grid-template-rows: repeat(20, $minoHeight);
 
-			.cleanAnimation {
-				transition: background-color 300ms ease-out;
-				background-color: white;
-			}
-		}
+      .cleanAnimation {
+        transition: background-color 300ms ease-out;
+        background-color: white;
+      }
+    }
 
-		.leftSide {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-		}
+    .leftSide {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-		.menu {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 10 * $minoWidth;
-			height: 20 * $minoHeight;
+    .menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 10 * $minoWidth;
+      height: 20 * $minoHeight;
 
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
 
-			background-color: black;
+      background-color: black;
 
-			.startButton {
-				width: 120px;
-				padding: 10px;
+      .startButton {
+        width: 120px;
+        padding: 10px;
 
-				background-color: green;
+        background-color: green;
 
-				@include button;
-			}
+        @include button;
+      }
 
-			.howToPlay {
-				@include button;
+      .howToPlay {
+        @include button;
 
-				margin: 20px;
-				padding: 10px;
-				font-size: 1.2em;
+        margin: 20px;
+        padding: 10px;
+        font-size: 1.2em;
 
-				background-color: gray;
-			}
+        background-color: gray;
+      }
 
-			.howToDirections {
-				list-style-type: none;
-				padding: 10px;
-				margin: 0;
+      .howToDirections {
+        list-style-type: none;
+        padding: 10px;
+        margin: 0;
 
-				li {
-					display: flex;
-					align-items: center;
+        li {
+          display: flex;
+          align-items: center;
 
-					div {
-						flex: 1 0 100px;
-					}
+          div {
+            flex: 1 0 100px;
+          }
 
-					p {
-						flex: 1 0 150px;
-					}
-				}
+          p {
+            flex: 1 0 150px;
+          }
+        }
 
-				.key {
-					display: inline-flex;
-					align-items: center;
-					justify-content: center;
+        .key {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
 
-					box-sizing: border-box;
-					margin: 10px;
+          box-sizing: border-box;
+          margin: 10px;
 
-					border: 3px solid white;
-					background-color: black;
+          border: 3px solid white;
+          background-color: black;
 
-					width: 30px;
-					height: 30px;
+          width: 30px;
+          height: 30px;
 
-					font-size: 1.3em;
-					text-align: center;
-				}
+          font-size: 1.3em;
+          text-align: center;
+        }
 
-				.space {
-					width: 100px;
-				}
-			}
+        .space {
+          width: 100px;
+        }
+      }
 
-			.tetrisLogo {
-				display: grid;
-				grid-template-columns: repeat(3, 85px);
-				grid-template-rows: repeat(2, 85px);
+      .tetrisLogo {
+        display: grid;
+        grid-template-columns: repeat(3, 85px);
+        grid-template-rows: repeat(2, 85px);
 
-				margin: 20px;
+        margin: 20px;
 
-				* {
-					background-color: blue;
-				}
+        * {
+          background-color: blue;
+        }
 
-				h1 {
-					grid-column: 1 / 4;
-					grid-row: 1 / 2;
+        h1 {
+          grid-column: 1 / 4;
+          grid-row: 1 / 2;
 
-					box-sizing: border-box;
+          box-sizing: border-box;
 
-					width: 100%;
-					height: 100%;
+          width: 100%;
+          height: 100%;
 
-					margin: 0;
-					padding: 0;
+          margin: 0;
+          padding: 0;
 
-					font-size: 70px;
-					text-align: center;
-					color: white;
-				}
+          font-size: 70px;
+          text-align: center;
+          color: white;
+        }
 
-				.emptyBox {
-					grid-column: 2 /3;
-					grid-row: 2/3;
-				}
-			}
-		}
-	}
+        .emptyBox {
+          grid-column: 2 /3;
+          grid-row: 2/3;
+        }
+      }
+    }
+  }
 
-	.showcaseMatrix,
-	.holdMatrix {
-		display: grid;
-		grid-template-columns: repeat(4, $minoWidth);
-		grid-template-rows: repeat(6, $minoHeight);
-		margin: $minoWidth / 5px;
+  .showcaseMatrix,
+  .holdMatrix {
+    display: grid;
+    grid-template-columns: repeat(4, $minoWidth);
+    grid-template-rows: repeat(6, $minoHeight);
+    margin: $minoWidth / 5px;
 
-		h3 {
-			grid-column: 1/5;
-			grid-row: 1/3;
-			text-align: center;
-		}
-	}
+    h3 {
+      grid-column: 1/5;
+      grid-row: 1/3;
+      text-align: center;
+    }
+  }
 }
 
 .mino {
-	background-color: black;
-	border: 0.5px solid rgb(34, 34, 34);
-	color: white;
+  background-color: black;
+  border: 0.5px solid rgb(34, 34, 34);
+  color: white;
 }
 
-$tetriminoColors: red, blue, green, yellow, orange, purple, cyan;
+$red: #fd3f59;
+$blue: #0077d3;
+$green: #53da3f;
+$yellow: #fefb34;
+$orange: #ffc82e;
+$purple: #dd0ab2;
+$cyan: #01edfa;
 
-@each $color in $tetriminoColors {
-	.#{$color} {
-		background-color: $color;
-	}
+$colorNames: red, blue, green, yellow, orange, purple, cyan;
+$tetriminoColors: $red, $blue, $green, $yellow, $orange, $purple, $cyan;
+@each $color in $colorNames {
+  .#{$color} {
+    background-color: nth($tetriminoColors, index($colorNames, $color));
+  }
 }
 
-@each $color in $tetriminoColors {
-	.hint-#{$color} {
-		border: none;
-		box-shadow: inset 0 0 2px white, inset 0 0 10px $color;
-	}
+@each $color in $colorNames {
+  .hint-#{$color} {
+    // border: none;
+    // box-shadow: inset 0 0 2px white, inset 0 0 10px nth($tetriminoColors, index($colorNames, $color));
+    // }
+    // .hint-red {
+    border: none;
+    box-shadow: inset 0 0 0px 3px black, inset 0 0 1px 5px nth($tetriminoColors, index($colorNames, $color));
+  }
 }
 
 .hideThis {
-	transition: 200ms ease;
-	opacity: 0;
-	display: none;
+  transition: 200ms ease;
+  opacity: 0;
+  display: none;
 }
